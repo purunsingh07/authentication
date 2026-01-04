@@ -1,7 +1,18 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { assets } from '../assets/assets'
+import {AppContext} from '../context/AppContext'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+import {useNavigate} from 'react-router-dom'
 
 const EmailVerify = () => {
+
+  axios.defaults.withCredentials = true;
+
+  const {backendUrl,isLoggedin,userData,getUserData} = useContext(AppContext)
+
+
+  const navigate = useNavigate()
 
   const inputRefs = React.useRef([])
 
@@ -30,17 +41,35 @@ const EmailVerify = () => {
 
   const onSubmitHandler = async (e)=>{
     try {
+      e.preventDefault();
+      const otpArray= inputRefs.current.map(e=>e.value);
+
+      const otp= otpArray.join('');
+
+      const {data} = await axios.post(backendUrl + '/api/auth/verify-account',{otp});
+
+      if(data.success){
+        toast.success(data.message);
+        getUserData();
+        navigate('/');
+      }else{
+        toast.error(data.message);
+      }
       
     } catch (error) {
-      
+      toast.error(error.message)
     }
   }
 
+  useEffect(()=>{
+    isLoggedin && userData && userData.isAccountVerified && navigate('/')
+
+  },[isLoggedin,userData])
   return (
     <div className='flex items-center justify-center min-h-screen bg-linear-to-br from-blue-200 to-purple-400'>
       <img onClick={()=>navigate('/')} src={assets.logo} alt="" className='absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer'/>
 
-      <form className='bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm'> 
+      <form onSubmit={onSubmitHandler} className='bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm'> 
         <h1 className='text-white text-2xl font-semibold text-center mb-4'>Email Verify OTP</h1>
         <p className='text-center mb-6 text-indigo-300'>Enter the 6-digit code sent to your emailid.</p>
 
