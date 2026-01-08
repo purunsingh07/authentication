@@ -251,6 +251,34 @@ export const sendResetOtp = async (req, res) => {
   }
 }
 
+export const testEmail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ success: false, message: "Email is required" });
+  }
+
+  try {
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL || process.env.SMTP_USER,
+      to: email,
+      subject: 'Test Email from Auth System',
+      text: `This is a test email to verify SMTP configuration. Sent at: ${new Date().toISOString()}`
+    };
+
+    console.log('Attempting to send test email to:', email);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Test email sent successfully:', info);
+
+    return res.json({ success: true, message: "Email sent successfully", info: info });
+
+  } catch (error) {
+    console.error("Test email failed:", error);
+    return res.status(500).json({ success: false, message: "Email sending failed", error: error.message, stack: error.stack });
+  }
+};
+
+
 
 export const resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
