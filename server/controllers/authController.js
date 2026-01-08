@@ -43,7 +43,7 @@ export const register = async (req, res) => {
     //sending welcome email
 
     const mailOptions = {
-      from: process.env.SENDER_EMAIL,
+      from: process.env.SENDER_EMAIL || process.env.SMTP_USER,
       to: email,
       subject: 'welcome to BITS&tat',
       text: `Welcome to bits&tat website.Your account has been created with email id:${email}`
@@ -140,7 +140,7 @@ export const sendVerifyOtp = async (req, res) => {
     await user.save();
 
     const mailOption = {
-      from: process.env.SENDER_EMAIL,
+      from: process.env.SENDER_EMAIL || process.env.SMTP_USER,
       to: user.email,
       subject: "Account Verification - OTP",
       // text: `Your OTP for account verification is: ${otp}. It is valid for 10 minutes.`,
@@ -234,7 +234,7 @@ export const sendResetOtp = async (req, res) => {
     await user.save();
 
     const mailOption = {
-      from: process.env.SENDER_EMAIL,
+      from: process.env.SENDER_EMAIL || process.env.SMTP_USER,
       to: user.email,
       subject: "Password Reset - OTP",
       // text: `Your OTP for password reset is: ${otp}. It is valid for 10 minutes.`,
